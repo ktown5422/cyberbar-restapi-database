@@ -25,6 +25,16 @@ app.get('/api/healthcheck', async (req, res) => {
 app.use('/api/users', UserRouter);
 app.use('/api/appointments', AppointmentRouter);
 
+
+// middleware
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({message: error.message || 'An unknown error occured!'});
+})
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 })

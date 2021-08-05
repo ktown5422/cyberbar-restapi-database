@@ -1,4 +1,5 @@
 const express = require("express");
+const HttpError = require("../Models/http-error");
 const router = express.Router();
 
 const Appointment = require("../Models/Appointments");
@@ -21,7 +22,7 @@ router.get('/:aid', (req, res, next) => {
     });
 
     if (!appointments) {
-       return res.status(404).json({message: 'Could not find a appointment for the provided id'});
+       throw new HttpError('Could not find appointment for the provided id', 404);
     }
 
     res.json({ appointments });
@@ -34,6 +35,13 @@ router.get('/users/:uid', (req, res, next) => {
     const appointments = DUMMY_APPOINTMENT.find(a => {
         return a.creator === userId;
     });
+
+    if (!appointments) {
+        return next(
+            new HttpError('Could not find appointment for the provided user id')
+        );
+     }
+    
     res.json({ appointments });
 });
 
