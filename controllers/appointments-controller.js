@@ -1,10 +1,15 @@
+const { v4: uuid } = require("uuid");
+
+
 const HttpError = require("../Models/http-error");
 
 const DUMMY_APPOINTMENT = [
     {
         id: 'a1',
-        phone: 'iphone X',
-        notes: 'cracked screen and battery replacement',
+        name: 'Kevin',
+        price: '$100',
+        description: 'cracked screen and battery replacement',
+        phoneType: 'iphone X',
         creator: 'u1',
     }
 ];
@@ -39,6 +44,22 @@ const getAppointmentsByUserId = (req, res, next) => {
     res.json({ appointments });
 };
 
+const createAppointment = (req, res, next) => {
+    const { name, price, description, phoneType, creator } = req.body;
+
+    const createdAppointment = {
+        name,
+        price,
+        description,
+        phoneType,
+        creator
+    };
+
+    DUMMY_APPOINTMENT.push(createdAppointment);
+
+    res.status(201).json({appointments: createdAppointment});
+}
 
 exports.getAppointmentsById = getAppointmentsById;
 exports.getAppointmentsByUserId = getAppointmentsByUserId;
+exports.createAppointment = createAppointment;
