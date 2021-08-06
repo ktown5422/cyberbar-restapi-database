@@ -10,5 +10,9 @@ router.get('/users/:uid', appointmentsController.getAppointmentsByUserId);
 
 router.post('/', appointmentsController.createAppointment);
 
+router.patch('/:aid', appointmentsController.updateAppointment);
+
+router.delete('/:aid', appointmentsController.deleteAppointment);
+
 
 module.exports = router;
