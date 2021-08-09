@@ -107,16 +107,32 @@ const updateAppointment = async (req, res, next) => {
     try {
         await appointments.save();
     } catch (err) {
-       const error = new HttpError('Something went wrong, could not update place', 500);
+       const error = new HttpError('Something went wrong, could not update appointment', 500);
         return next(error);
     }
 
     res.status(200).json({appointments: appointments.toObject({ getters: true })});
 };
 
-const deleteAppointment = (req, res, next) => {
+const deleteAppointment = async (req, res, next) => {
     const appointmentId = req.params.aid;
-    DUMMY_APPOINTMENT = DUMMY_APPOINTMENT.filter(a => a.id !== appointmentId);
+    
+    let appointments;
+    try {
+        appointments = await Appointment.findById(appointmentId);
+    } catch (err) {
+        const error = new HttpError('Something went wrong, could not update appointment', 500);
+        return next(error);
+    }
+
+    try {
+        appointments.remove();
+    } catch (err) {
+        const error2 = new HttpError('Something went wrong, could not delete appointment', 500);
+        return next(error2);
+    }
+
+
     res.status(200).json({message: 'Deleted Appointment'});
 };
 
