@@ -24,6 +24,7 @@ app.get('/api/healthcheck', async (req, res) => {
   res.send('What hath God wrought?');
 });
 
+// middleware
 app.use('/api/users', UserRouter);
 app.use('/api/appointments', AppointmentRouter);
 

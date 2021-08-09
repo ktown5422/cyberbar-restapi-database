@@ -1,4 +1,5 @@
 const { v4: uuid } = require("uuid");
+const { validationResult } = require("express-validator")
 
 
 const HttpError = require("../Models/http-error");
@@ -10,6 +11,7 @@ let DUMMY_APPOINTMENT = [
         price: '$100',
         description: 'cracked screen and battery replacement',
         phoneType: 'iphone X',
+        date: '10:00',
         creator: 'u1',
     }
 ];
@@ -45,13 +47,20 @@ const getAppointmentsByUserId = (req, res, next) => {
 };
 
 const createAppointment = (req, res, next) => {
-    const { name, price, description } = req.body;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        console.log(errors);
+        throw new HttpError('Invalid inputs passed, please check your data.', 422);
+    }
+
+    const { name, price, description, phoneType, date, creator } = req.body;
 
     const createdAppointment = {
         name,
         price,
         description,
         phoneType,
+        date,
         creator
     };
 
@@ -61,7 +70,7 @@ const createAppointment = (req, res, next) => {
 };
 
 const updateAppointment = (req, res, next) => {
-    const { name, price, description, phoneType } = req.body;
+    const { name, price, description, phoneType, date } = req.body;
     const appointmentId = req.params.aid;
 
     const updatedAppointment = { ...DUMMY_APPOINTMENT.find(a => a.id === appointmentId) };
@@ -70,6 +79,7 @@ const updateAppointment = (req, res, next) => {
     updatedAppointment.price = price;
     updatedAppointment.description = description;
     updatedAppointment.phoneType = phoneType;
+    updatedAppointment.date = date;
 
     DUMMY_APPOINTMENT[appointmentIndex] = updatedAppointment;
 
