@@ -37,12 +37,16 @@ const getAppointmentsById = async (req, res, next) => {
     res.json({ appointments: appointments.toObject({getters: true})}); // toObject is a method to help trasform _id to regular id
 };
 
-const getAppointmentsByUserId = (req, res, next) => {
+const getAppointmentsByUserId = async (req, res, next) => {
     const userId = req.params.uid;
 
-    const appointments = DUMMY_APPOINTMENT.filter(a => {
-        return a.creator === userId;
-    });
+    let appointments;
+    try{
+        appointments =  await Appointment.find({ creator: userId });
+    } catch (err) {
+        const error = new HttpError('Fetching appointments failed, try again later', 500);
+        return next(error);
+    }
 
     if (!appointments || appointments.length === 0) {
         return next(
@@ -50,7 +54,7 @@ const getAppointmentsByUserId = (req, res, next) => {
         );
      }
     
-    res.json({ appointments });
+    res.json({ appointments: appointments.map(appointments => appointments.toObject({ getters: true })) });
 };
 
 const createAppointment = async (req, res, next) => {
@@ -80,21 +84,34 @@ const createAppointment = async (req, res, next) => {
     res.status(201).json({ appointments: createdAppointment });
 };
 
-const updateAppointment = (req, res, next) => {
-    const { name, price, description, phoneType, date } = req.body;
+const updateAppointment = async (req, res, next) => {
+    const { name, price, description, phoneType, appointmentDate, appointmentTime } = req.body;
     const appointmentId = req.params.aid;
 
-    const updatedAppointment = { ...DUMMY_APPOINTMENT.find(a => a.id === appointmentId) };
-    const appointmentIndex = DUMMY_APPOINTMENT.findIndex(a => a.id === appointmentId);
-    updatedAppointment.name = name;
-    updatedAppointment.price = price;
-    updatedAppointment.description = description;
-    updatedAppointment.phoneType = phoneType;
-    updatedAppointment.date = date;
+    let appointments;
+    try{
+        appointments = await Appointment.findById(appointmentId);
+    } catch (err){
+        const error = new HttpError('Something went wrong, could not update place', 500);
+        return next(error);
+    } 
 
-    DUMMY_APPOINTMENT[appointmentIndex] = updatedAppointment;
+    
+    appointments.name = name;
+    appointments.price = price;
+    appointments.description = description;
+    appointments.phoneType = phoneType;
+    appointments.appointmentDate = appointmentDate;
+    appointments.appointmentTime = appointmentTime;
 
-    res.status(200).json({appointments: updatedAppointment});
+    try {
+        await appointments.save();
+    } catch (err) {
+       const error = new HttpError('Something went wrong, could not update place', 500);
+        return next(error);
+    }
+
+    res.status(200).json({appointments: appointments.toObject({ getters: true })});
 };
 
 const deleteAppointment = (req, res, next) => {
