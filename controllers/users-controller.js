@@ -1,5 +1,4 @@
-require('dotenv').config();
-const MongoClient = require('mongodb').MongoClient;
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
@@ -9,20 +8,9 @@ const validateLoginInput = require("../validation/login");
 const User = require("../Models/User");
 const HttpError = require("../Models/http-error");
 
-const url = process.env.MONGODB_URI;
 
 const getUsers = async(req, res, next) => {
-    const client = new MongoClient(url);
-    let users
-    try {
-        await client.connect();
-        const db = client.db();
-        users = await db.collection('users').find().toArray();
-    } catch (err) {
-        throw new HttpError('could not retrieve users')
-    };
-    client.close();
-
+    const users = await User.find().exec();
     res.json(users);
 };
 
