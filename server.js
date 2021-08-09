@@ -9,6 +9,7 @@ const HttpError = require('./Models/http-error');
 const app = express();
 const port = 3000;
 
+// mongoose db config
 require('./config/db');
 
 app.use(express.json());

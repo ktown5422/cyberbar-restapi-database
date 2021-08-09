@@ -18,7 +18,11 @@ const AppointmentSchema = new Schema({
     type: String,
     required: true,
   },
-  date: {
+  appointmentDate: {
+    type: String,
+    required: true,
+  },
+  appointmentTime: {
     type: String,
     required: true,
   },

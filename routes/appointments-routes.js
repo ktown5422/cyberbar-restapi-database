@@ -8,17 +8,7 @@ router.get('/:aid', appointmentsController.getAppointmentsById);
 
 router.get('/users/:uid', appointmentsController.getAppointmentsByUserId);
 
-router.post(
-    '/', 
-    [
-        check('name').not().isEmpty(),
-        check('price').not().isEmpty(),
-        check('description').isLength({min: 5}),
-        check('phoneType').not().isEmpty(),
-        check('date').not().isEmpty()
-    ], 
-    appointmentsController.createAppointment
-);
+router.post('/', appointmentsController.createAppointment);
 
 router.patch('/:aid', appointmentsController.updateAppointment);
 

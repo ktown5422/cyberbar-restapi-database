@@ -3,6 +3,7 @@ const { validationResult } = require("express-validator")
 
 
 const HttpError = require("../Models/http-error");
+const Appointment = require("../Models/Appointment");
 
 let DUMMY_APPOINTMENT = [
     {
@@ -17,17 +18,23 @@ let DUMMY_APPOINTMENT = [
 ];
 
 
-const getAppointmentsById = (req, res, next) => {
+const getAppointmentsById = async (req, res, next) => {
     const appointmentId = req.params.aid;
-    const appointments = DUMMY_APPOINTMENT.find(a =>{
-        return a.id === appointmentId;
-    });
+    let appointments;
 
-    if (!appointments) {
-       throw new HttpError('Could not find appointment for the provided id', 404);
+    try{
+        appointments = await Appointment.findById(appointmentId);
+    } catch (err) {
+        const error = new HttpError('Could not find appointment, Something went wrong', 500);
+        return next(error);
     }
 
-    res.json({ appointments });
+    if (!appointments){
+        const error = new HttpError('Could not find appointment for the provided id', 404);
+        return next(error);
+    }
+    
+    res.json({ appointments: appointments.toObject({getters: true})}); // toObject is a method to help trasform _id to regular id
 };
 
 const getAppointmentsByUserId = (req, res, next) => {
@@ -46,27 +53,31 @@ const getAppointmentsByUserId = (req, res, next) => {
     res.json({ appointments });
 };
 
-const createAppointment = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        console.log(errors);
-        throw new HttpError('Invalid inputs passed, please check your data.', 422);
-    }
+const createAppointment = async (req, res, next) => {
 
-    const { name, price, description, phoneType, date, creator } = req.body;
+    const { name, price, description, phoneType, appointmentDate, appointmentTime, creator } = req.body;
 
-    const createdAppointment = {
+    const createdAppointment = new Appointment({
         name,
         price,
         description,
         phoneType,
-        date,
+        appointmentDate,
+        appointmentTime,
         creator
-    };
+    });
 
-    DUMMY_APPOINTMENT.push(createdAppointment);
+    try{
+        await createdAppointment.save();
+    } catch (err) {
+        const error = new HttpError(
+            'Creating appointment failed, please try again',
+            500
+        );
+        return next(error);
+    }
 
-    res.status(201).json({appointments: createdAppointment});
+    res.status(201).json({ appointments: createdAppointment });
 };
 
 const updateAppointment = (req, res, next) => {
