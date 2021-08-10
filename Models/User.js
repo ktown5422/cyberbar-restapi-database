@@ -20,11 +20,11 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  // creator: [{
-  //   type: mongoose.Types.ObjectId,
-  //   required: true,
-  //   ref: 'Appointment',
-  // }],
+  appointments: [{
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Appointment',
+  }],
 });
 
 UserSchema.plugin(uniqueValidator);

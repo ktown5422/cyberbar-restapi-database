@@ -4,6 +4,8 @@ const { validationResult } = require("express-validator")
 
 const HttpError = require("../Models/http-error");
 const Appointment = require("../Models/Appointment");
+const User = require("../Models/User");
+const mongoose = require("mongoose");
 
 let DUMMY_APPOINTMENT = [
     {
@@ -71,9 +73,30 @@ const createAppointment = async (req, res, next) => {
         creator
     });
 
-    try{
-        await createdAppointment.save();
+    let users;
+
+    try {
+        users = await User.findById(creator)
     } catch (err) {
+        const error = new HttpError('Creating appointment failed, please try again', 500);
+        return next(error);
+    }
+
+    if (!users) {
+        const error = new HttpError('Could not find user for provided id', 404);
+        return next(error);
+    }
+
+    console.log(users);
+
+    try{
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await createdAppointment.save({ session: sess });
+        users.appointments.push(createdAppointment);
+        await users.save({ session: sess });
+        await sess.commitTransaction();
+      } catch (err) {
         const error = new HttpError(
             'Creating appointment failed, please try again',
             500
@@ -119,14 +142,24 @@ const deleteAppointment = async (req, res, next) => {
     
     let appointments;
     try {
-        appointments = await Appointment.findById(appointmentId);
+        appointments = await Appointment.findById(appointmentId).populate('creator');
     } catch (err) {
         const error = new HttpError('Something went wrong, could not update appointment', 500);
         return next(error);
     }
 
+    if (!appointments) {
+        const error1 = new HttpError('Could not find appointment for id.', 404);
+        return next(error1);
+    }
+
     try {
-        appointments.remove();
+        const sess = await mongoose.startSession();
+        sess.startTransaction();
+        await appointments.remove({ session: sess })
+        appointments.creator.appointments.pull(appointments);
+        await appointments.creator.save({ session: sess })
+        await sess.commitTransaction();
     } catch (err) {
         const error2 = new HttpError('Something went wrong, could not delete appointment', 500);
         return next(error2);

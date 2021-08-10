@@ -33,7 +33,7 @@ const register = (req, res, next) => {
         last_name: req.body.last_name,
         email: req.body.email,
         password: req.body.password,
-        // appointments: [],
+        appointments: [],
       });
 
       bcrypt.genSalt(10, (err, salt) => {
@@ -43,8 +43,8 @@ const register = (req, res, next) => {
             if (err) console.error("There was an error", err);
             else {
               newUser.password = hash;
-              newUser.save().then((user) => {
-                res.json(user);
+              newUser.save().then(() => {
+                res.json({ users: newUser.toObject({ getters: true } )});
               });
             }
           });
