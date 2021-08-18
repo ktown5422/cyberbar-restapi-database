@@ -3,6 +3,10 @@ const appointmentsController = require('../controllers/appointments-controller')
 const router = express.Router();
 const { check } = require('express-validator');
 
+
+
+// router.use();
+
 router.get('/:aid', appointmentsController.getAppointmentsById);
 
 

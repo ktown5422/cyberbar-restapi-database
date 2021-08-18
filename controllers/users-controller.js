@@ -16,7 +16,7 @@ const getUsers = async(req, res, next) => {
 
 const register = (req, res, next) => {
     const { errors, isValid } = validateRegisterInput(req.body);
-  console.log(req.body);
+ 
   if (!isValid) {
     return res.status(400).json(errors);
   }
@@ -69,7 +69,8 @@ const login = (req, res, next) => {
       if (isMatch) {
         const payload = {
           id: user.id,
-          name: user.name,
+          email: user.email,
+          first_name: user.first_name,
         };
         jwt.sign(
           payload,
@@ -81,6 +82,9 @@ const login = (req, res, next) => {
             if (err) console.error("There is some error in token", err);
             else {
               res.json({
+                id: user.id,
+                email: user.email,
+                first_name: user.first_name,
                 success: true,
                 token: `Bearer ${token}`,
               });
