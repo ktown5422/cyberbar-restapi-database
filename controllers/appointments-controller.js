@@ -61,9 +61,10 @@ const getAppointmentsByUserId = async (req, res, next) => {
 
 const createAppointment = async (req, res, next) => {
 
-    const { name, price, description, phoneType, appointmentDate, appointmentTime, creator } = req.body;
+    const { imageUrl, name, price, description, phoneType, appointmentDate, appointmentTime, creator } = req.body;
 
     const createdAppointment = new Appointment({
+        imageUrl,
         name,
         price,
         description,
@@ -87,7 +88,7 @@ const createAppointment = async (req, res, next) => {
         return next(error);
     }
 
-    console.log(users);
+    // console.log(users);
 
     try{
         const sess = await mongoose.startSession();
@@ -108,7 +109,7 @@ const createAppointment = async (req, res, next) => {
 };
 
 const updateAppointment = async (req, res, next) => {
-    const { name, price, description, phoneType, appointmentDate, appointmentTime } = req.body;
+    const { imageUrl, name, price, description, phoneType, appointmentDate, appointmentTime } = req.body;
     const appointmentId = req.params.aid;
 
     let appointments;
@@ -119,7 +120,7 @@ const updateAppointment = async (req, res, next) => {
         return next(error);
     } 
 
-    
+    appointments.imageUrl = imageUrl;
     appointments.name = name;
     appointments.price = price;
     appointments.description = description;

@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
+const fs = require('fs');
+const path = require('path');
 
 const UserRouter = require('./routes/users-routes');
 const AppointmentRouter = require('./routes/appointments-routes');
@@ -25,6 +27,8 @@ app.get('/api/healthcheck', async (req, res) => {
   res.send('What hath God wrought?');
 });
 
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+
 // middleware
 app.use('/api/users', UserRouter);
 app.use('/api/appointments', AppointmentRouter);
@@ -36,6 +40,14 @@ app.use((req, res, next) => {
 
 // middleware
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, err => {
+      console.log(err);
+    });
+    const status = err.status || 500;
+    res.status(status);
+    res.render('error');
+  }
   if (res.headerSent) {
     return next(error);
   }
