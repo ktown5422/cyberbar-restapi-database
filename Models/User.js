@@ -20,10 +20,19 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  profile_img: {
+    type: String,
+    required: true,
+  },
   appointments: [{
     type: mongoose.Types.ObjectId,
     required: true,
     ref: 'Appointment',
+  }],
+  inventory: [{
+    type: mongoose.Types.ObjectId,
+    required: true,
+    ref: 'Inventory',
   }],
 });
 

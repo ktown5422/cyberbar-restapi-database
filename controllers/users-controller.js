@@ -33,7 +33,9 @@ const register = (req, res, next) => {
         last_name: req.body.last_name,
         email: req.body.email,
         password: req.body.password,
+        profile_img: req.body.profile_img,
         appointments: [],
+        inventory: [],
       });
 
       bcrypt.genSalt(10, (err, salt) => {
@@ -71,6 +73,7 @@ const login = (req, res, next) => {
           id: user.id,
           email: user.email,
           first_name: user.first_name,
+          
         };
         jwt.sign(
           payload,
@@ -85,6 +88,7 @@ const login = (req, res, next) => {
                 id: user.id,
                 email: user.email,
                 first_name: user.first_name,
+                profile_img: user.profile_img,
                 success: true,
                 token: `Bearer ${token}`,
               });

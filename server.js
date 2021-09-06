@@ -1,11 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 
 const UserRouter = require('./routes/users-routes');
 const AppointmentRouter = require('./routes/appointments-routes');
+const InventoryRouter = require('./routes/inventory-routes');
 const HttpError = require('./Models/http-error');
 
 const app = express();
@@ -20,6 +21,18 @@ app.use(express.urlencoded({
 }));
 
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE');
+
+  next();
+});
+
+
 app.use(passport.initialize());
 require('./passport')(passport);
 
@@ -27,11 +40,15 @@ app.get('/api/healthcheck', async (req, res) => {
   res.send('What hath God wrought?');
 });
 
-app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+// app.use('/uploads/images', express.static(path.join('uploads', 'images')));
 
 // middleware
 app.use('/api/users', UserRouter);
 app.use('/api/appointments', AppointmentRouter);
+app.use('/api/inventory', InventoryRouter);
+// app.use('/api/invoice', InvoiceRouter);
+
+
 
 app.use((req, res, next) => {
   const error = new HttpError('Could not find this route', 404);
@@ -39,21 +56,21 @@ app.use((req, res, next) => {
 });
 
 // middleware
-app.use((error, req, res, next) => {
-  if (req.file) {
-    fs.unlink(req.file.path, err => {
-      console.log(err);
-    });
-    const status = err.status || 500;
-    res.status(status);
-    res.render('error');
-  }
-  if (res.headerSent) {
-    return next(error);
-  }
-  res.status(error.code || 500);
-  res.json({message: error.message || 'An unknown error occured!'});
-})
+// app.use((error, req, res, next) => {
+//   if (req.file) {
+//     fs.unlink(req.file.path, err => {
+//       console.log(err);
+//     });
+//     const status = err.status || 500;
+//     res.status(status);
+//     res.render('error');
+//   }
+//   if (res.headerSent) {
+//     return next(error);
+//   }
+//   res.status(error.code || 500);
+//   res.json({message: error.message || 'An unknown error occured!'});
+// })
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

@@ -88,7 +88,6 @@ const createAppointment = async (req, res, next) => {
         return next(error);
     }
 
-    // console.log(users);
 
     try{
         const sess = await mongoose.startSession();
@@ -108,20 +107,18 @@ const createAppointment = async (req, res, next) => {
     res.status(201).json({ appointments: createdAppointment });
 };
 
-const updateAppointment = async (req, res, next) => {
-    const { imageUrl, name, price, description, phoneType, appointmentDate, appointmentTime } = req.body;
+const updateAppointmentById = async (req, res, next) => {
+    const { price, description, phoneType, appointmentDate, appointmentTime } = req.body;
     const appointmentId = req.params.aid;
 
     let appointments;
     try{
         appointments = await Appointment.findById(appointmentId);
     } catch (err){
-        const error = new HttpError('Something went wrong, could not update place', 500);
+        const error = new HttpError('Something went wrong, could not update appointment', 500);
         return next(error);
     } 
 
-    appointments.imageUrl = imageUrl;
-    appointments.name = name;
     appointments.price = price;
     appointments.description = description;
     appointments.phoneType = phoneType;
@@ -173,5 +170,5 @@ const deleteAppointment = async (req, res, next) => {
 exports.getAppointmentsById = getAppointmentsById;
 exports.getAppointmentsByUserId = getAppointmentsByUserId;
 exports.createAppointment = createAppointment;
-exports.updateAppointment = updateAppointment;
+exports.updateAppointmentById = updateAppointmentById;
 exports.deleteAppointment = deleteAppointment;
